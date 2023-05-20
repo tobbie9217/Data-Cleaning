@@ -1,1 +1,136 @@
+--Cleansed Dim_DateTable
+SELECT [DateKey]
+      ,[FullDateAlternateKey] as Date,
+      --,[DayNumberOfWeek]
+      [EnglishDayNameOfWeek] As Day,
+      --,[SpanishDayNameOfWeek]
+      --,[FrenchDayNameOfWeek]
+      --,[DayNumberOfMonth]
+      --,[DayNumberOfYear]
+      [WeekNumberOfYear] As WeekNo,
+      [EnglishMonthName] As Month, 
+	  LEFT([EnglishMonthName],3) As MonthShrt,
+      --,[SpanishMonthName]
+      --,[FrenchMonthName]
+      [MonthNumberOfYear] As MonthNo,
+      [CalendarQuarter] As Quarter,
+      [CalendarYear] As Year
+      --,[CalendarSemester]
+      --,[FiscalQuarter]
+      --,[FiscalYear]
+      --,[FiscalSemester]
+  FROM [AdventureWorksDW2019].[dbo].[DimDate]
+  Where CalendarYear >= 2021
 
+--Cleansing Dim_Customer
+SELECT  c.customerkey as [CustomerKey],
+      --,[GeographyKey]
+      --,[CustomerAlternateKey]
+      --,[Title]
+      c.firstname As [FirstName],
+      --[MiddleName]
+      c.lastname as [LastName],
+	  c.firstname + ' ' + c.lastname as [FullName],
+      --,[NameStyle]
+      --,[BirthDate]
+      --,[MaritalStatus]
+      --,[Suffix]
+	  Case c.gender when 'M' then 'Male' When 'F' then 'Female' END AS Gender,
+      --,[EmailAddress]
+      --,[YearlyIncome]
+      --,[TotalChildren]
+      --,[NumberChildrenAtHome]
+      --,[EnglishEducation]
+      --,[SpanishEducation]
+      --,[FrenchEducation]
+      --,[EnglishOccupation]
+      --,[SpanishOccupation]
+      --,[FrenchOccupation]
+      --,[HouseOwnerFlag]
+      --,[NumberCarsOwned]
+      --[AddressLine1]
+      --,[AddressLine2]
+      --,[Phone]
+      c.[DateFirstPurchase] as DateFirstPurchase,
+      --,[CommuteDistance]
+	  g.city as [Customer City]
+  FROM [dbo].[DimCustomer] AS c
+  LEFT Join dbo.DimGeography as g
+  On g.GeographyKey = c.GeographyKey
+  Order by c.customerkey
+  
+  --Cleansing Dim_Product
+SELECT p.[ProductKey]
+      ,p.[ProductAlternateKey] As ProductItemCode
+      --,p.[ProductSubcategoryKey]
+      --,[WeightUnitMeasureCode]
+      --,[SizeUnitMeasureCode]
+      ,p.[EnglishProductName]
+      ,ps.EnglishProductSubcategoryName as SubCategory,
+	  pc.EnglishProductCategoryName as ProductCategory,
+      --,[SpanishProductName]
+      --,[FrenchProductName]
+      --[StandardCost]
+      --,[FinishedGoodsFlag]
+      p.Color as [Product Color]
+      --,[SafetyStockLevel]
+      --,[ReorderPoint]
+      --,[ListPrice]
+      ,p.Size as [Product Size]
+      --,[SizeRange]
+      --,[Weight]
+      --,[DaysToManufacture]
+      ,p.ProductLine as  [Product Line]
+      --,[DealerPrice]
+      --,[Class]
+      --,[Style]
+      ,p.[ModelName] as [Product Model Name]
+      --,[LargePhoto]
+      ,p.[EnglishDescription] as [Product Description]
+      --,[FrenchDescription]
+      --,[ChineseDescription]
+      --,[ArabicDescription]
+      --,[HebrewDescription]
+      --,[ThaiDescription]
+      --,[GermanDescription]
+      --,[JapaneseDescription]
+      --,[TurkishDescription]
+      --,[StartDate]
+      --,[EndDate]
+      ,ISNULL (P.Status, 'Outdated') as [Product Status]
+  FROM [AdventureWorksDW2019].[dbo].[DimProduct] as p
+  Left join dbo.DimProductSubcategory as ps
+  on ps.ProductSubcategoryKey = p.ProductSubcategoryKey
+  Left Join dbo.DimProductCategory as pc
+  On pc.ProductCategoryKey = ps.ProductCategoryKey
+  
+  --/cleansing internet sales
+SELECT [ProductKey]
+      ,[OrderDateKey]
+      ,[DueDateKey]
+      ,[ShipDateKey]
+      ,[CustomerKey]
+      --,[PromotionKey]
+      --,[CurrencyKey]
+      --,[SalesTerritoryKey]
+      ,[SalesOrderNumber]
+      --,[SalesOrderLineNumber]
+      --,[RevisionNumber]
+      --,[OrderQuantity]
+      --,[UnitPrice]
+      --,[ExtendedAmount]
+      --,[UnitPriceDiscountPct]
+      --,[DiscountAmount]
+      --,[ProductStandardCost]
+      --,[TotalProductCost]
+      ,[SalesAmount]
+      --,[TaxAmt]
+      --,[Freight]
+      --,[CarrierTrackingNumber]
+      --,[CustomerPONumber]
+      --,[OrderDate]
+      --,[DueDate]
+      --,[ShipDate]
+  FROM [AdventureWorksDW2019].[dbo].[FactInternetSales]
+  where Left (OrderDateKey, 4) >= Year(GetDate()) - 2
+  order by OrderDateKey asc  
